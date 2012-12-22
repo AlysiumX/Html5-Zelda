@@ -1,0 +1,55 @@
+<html>
+<head>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript">
+var c;
+var ctx;
+var GAME_WIDTH = 600;
+var GAME_HEIGHT = 400;
+var url=document.URL.split('?');
+function load()
+{
+  alert(url[1]);
+  c = document.getElementById("GameCanvas");
+  c.width = GAME_WIDTH;
+  c.height = GAME_HEIGHT;
+  ctx = c.getContext("2d");
+  resetCanvas();
+  setInterval(gameLoop, 1000 / GAME_FPS);
+}
+
+function gameLoop(){
+	gameUpdate();
+	gameDraw();
+}
+
+function gameUpdate(){
+	
+}
+
+function gameDraw(){
+	resetCanvas();
+	ctx.fillStyle = "White";
+	ctx.fillText(mouseX + ", " + mouseY, GAME_WIDTH - 50, 15);
+}
+
+function resetCanvas(){
+  ctx.fillStyle = "Black";
+  ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+}
+
+function mouseMove(e){
+	//mouseX = e.pageX - 8;
+	//mouseY = e.pageY - 8;
+	mouseX = e.clientX - 8;
+	mouseY = e.clientY - 8;
+}
+$(document).bind('mousemove',function(e){ 
+	mouseMove(event);
+});
+</script>
+</head>
+<body onload="load()">
+<Canvas id="GameCanvas"></Canvas>
+</body>
+</html>

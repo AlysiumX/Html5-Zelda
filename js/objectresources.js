@@ -1,0 +1,1 @@
+var playerImages = "images/player/link_f_walk.png";

@@ -1,0 +1,143 @@
+<html>
+<title></title>
+<head>
+<script type="text/javascript" src="js/enginevars.js"></script>
+<script type="text/javascript" src="js/keybinds.js"></script>
+<script type="text/javascript" src="js/animation.js"></script>
+<script type="text/javascript" src="js/player.js"></script>
+<script type="text/javascript" src="js/tile.js"></script>
+<script type="text/javascript" src="js/tileresources.js"></script>
+<script type="text/javascript" src="js/tiledef.js"></script>
+<script type="text/javascript" src="js/level.js"></script>
+<script type="text/javascript" src="js/room.js"></script>
+<script type="text/javascript" src="js/levels/level01.js"></script>
+
+<script type="text/javascript">
+	//TODO: Canvas optimization.
+	//TODO: Main engine optimization.
+	
+	//Canvas
+	var canvas;
+	var context;
+	
+	var backCanvas;
+	var backContext;
+	
+	var player = new player(); //Create a player
+	
+	var editor; //Editor
+	
+	//Debug variables
+	var debug = true; //Defines if were in debug mode or not.
+	var currentSecond = 0;
+	var currentFrameCount = 0;
+	var frameCount = 0;
+	
+	var currentLevel = level01;
+	
+function gameLoad(){
+	//canvas
+	canvas = document.getElementById("GameCanvas");
+	canvas.width = GAME_WIDTH;
+	canvas.height = GAME_HEIGHT;
+	context = canvas.getContext("2d");
+	
+	//Back canvas
+	backCanvas = document.createElement("Canvas");
+	backCanvas.width = GAME_WIDTH;
+	backCanvas.height = GAME_HEIGHT;
+	backContext = backCanvas.getContext("2d");
+	
+	clearCanvas();
+
+	//Build stage.
+	currentLevel.createRoom();
+	
+	gameLoop();
+}
+
+function gameLoop(){
+	setInterval(gameUpdate, 1000 / GAME_FPS);
+	setInterval(gameDraw, 1);
+}
+
+function gameUpdate(){
+	//Pass player keys
+	player.update();
+	if(debug)
+	{
+		var date = new Date();
+		var sec = date.getSeconds();
+		if(currentSecond<sec)
+		{
+			currentFrameCount = frameCount;
+			currentSecond = sec;  
+			frameCount = 0;
+		}
+		frameCount++;
+	}
+}
+
+function gameDraw(){
+	clearCanvas();
+	
+	//Draw stage if were not editing.
+	if(EDITOR_MODE) 
+		editor.draw(backContext);
+	else 
+		currentLevel.draw(backContext);		
+	
+	player.draw(backContext);
+	
+	//Debug
+	if(debug){
+		
+		backContext.fillStyle = 'Red'
+		backContext.font="30px Console";
+		backContext.fillText(currentFrameCount, canvas.width - 50, 25);
+	}
+	//Draw back canvas.
+	context.drawImage(backCanvas, 0, 0);
+}
+
+//keyDown event
+document.onkeydown = function(){
+	var keyCode = event.keyCode;
+	
+	switch(keyCode){
+	//Debug keys -- left these here because they are debug keys for the engine.
+	case KEY_COMMA:
+		if(debug){
+			if(currentLevel.currentRoomNum != 0)
+				currentLevel.currentRoomNum--;
+		}
+		break;
+	case KEY_PERIOD:
+		if(debug){
+			if(currentLevel.rooms.length - 1 > currentLevel.currentRoomNum)
+				currentLevel.currentRoomNum++;
+		}
+		break;
+	default:
+		player.processKeys(keyCode, true);
+	}
+}
+
+//keyUp event
+document.onkeyup = function(){
+	player.processKeys(event.keyCode, false);
+}
+
+function clearCanvas(){
+	context.fillStyle = GAME_BGCOLOR
+	context.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+	backContext.fillStyle = GAME_BGCOLOR
+	backContext.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+}
+</script>
+</head>
+<body onload="gameLoad()">
+<div id="GameMenu"></div>
+<canvas id="GameCanvas">Your browser does not support the canvas element. :(</canvas>
+</body>
+</html>
